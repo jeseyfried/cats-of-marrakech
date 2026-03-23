@@ -12,8 +12,8 @@ header-position: 35% center
 
 {% include nav/map.html
   height="600px"
-  width="100%"
+  width="120%"
   start_coords="[31.6258, -7.9890]"
-  zoom=4
+  zoom=15
 %}
 
