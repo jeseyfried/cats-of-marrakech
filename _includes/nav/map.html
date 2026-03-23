@@ -137,8 +137,8 @@
 </style>
 
 <!-- Map container with padding to allow popups to extend -->
-<div style="position: relative; padding: 20px; margin: -20px; height: {{ map_height }}; display: flex; justify-content: center;">
-  <div id="{{ map_id }}" class="{{ map_class }}" style="height: 100%; width: {{ map_width }}; display: block;"></div>
+<div style="position: relative; padding: 20px; margin: -20px; height: {{ map_height }}; width: {{ map_width }}; left: 50%; transform: translateX(-50%);">
+  <div id="{{ map_id }}" class="{{ map_class }}" style="height: 100%; width: 100%; display: block;"></div>
 </div>
 
 <!-- Define JSON data based on data source -->
