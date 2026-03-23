@@ -5,9 +5,9 @@ layout: base
 
 # About This Project
 
-For Spring Break in March 2026, I traveled to Marrakech. As my travel buddy and I walked around the medina, I saw cats everywhere and couldn't stop myself from taking pictures of them all.
+This is a small creative project made by [Jonathan Seyfried](https://jonathanseyfried.net/), a PhD candidate in History at the University of New Mexico. For Spring Break in March 2026, I traveled to Marrakech. As my travel buddy and I walked around the medina, I saw cats everywhere and couldn't stop myself from taking pictures of them all.
 
-This site also demonstrates the power of using Copilot with GitHub. I copied the photos into a new folder in assets/images and then Copilot was able to create all the code necessary for making the cat photos into pins on the map. 
+This site also demonstrates the power of using Copilot with GitHub. I copied the photos into a new folder in assets/images and then Copilot was able to create all the code necessary for making the cat photos into pins on the map. I have one year of experience using GitHub Pages and I knew nothing about markdown in January 2025. Check out [Xanthan](https://xanthan-web.github.io/) to see more about how to do websites like this!
 
 ## Prompt for Copilot
 
