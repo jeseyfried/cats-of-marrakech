@@ -217,7 +217,8 @@
 
     // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
+      maxZoom: 22,
+      maxNativeZoom: 19,
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
