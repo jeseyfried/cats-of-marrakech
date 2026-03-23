@@ -8,6 +8,7 @@
   - class: additional CSS classes (optional)
   - start_coords: [lat, lng] starting coordinates (default: [44.967, -103.767])
   - zoom: initial zoom level (default: 4)
+  - data_source: "pages" (default) to use page YAML headers, or "cat-images" to use _data/cat-images.yml
 
   Example usage:
   See navigation/map.md for usage examples
@@ -19,6 +20,7 @@
 {% assign map_class = include.class | default: "" %}
 {% assign map_coords = include.start_coords | default: "[44.967, -103.767]" %}
 {% assign map_zoom = include.zoom | default: 4 %}
+{% assign data_source = include.data_source | default: "pages" %}
 
 <!-- Load Leaflet CSS and JS (only load once per page) -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -108,6 +110,30 @@
 .leaflet-popup-content p {
   margin: 1rem 0 0 0;
 }
+
+/* Image-only popup styles for cat images */
+.popup-image-only {
+  width: 300px;
+  max-width: 90vw;
+}
+
+.popup-image-only img {
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .popup-image-only {
+    width: 250px;
+  }
+  
+  .popup-image-only img {
+    max-height: 250px;
+  }
+}
 </style>
 
 <!-- Map container with padding to allow popups to extend -->
@@ -115,26 +141,48 @@
   <div id="{{ map_id }}" class="{{ map_class }}" style="height: 100%; width: {{ map_width }}; display: block;"></div>
 </div>
 
-<!-- Define JSON data for pages with geo coordinates -->
+<!-- Define JSON data based on data source -->
 <script id="{{ map_id }}-data" type="application/json">
-[
-  {% assign first = true %}
-  {% for page in site.pages %}
-    {% if page.geo %}
+{% if data_source == "cat-images" %}
+{
+  "type": "images",
+  "baseurl": {{ site.baseurl | jsonify }},
+  "items": [
+    {% assign first = true %}
+    {% for img in site.data.cat-images %}
       {% unless first %},{% endunless %}
       {
-        "title": {{ page.title | jsonify }},
-        "baseurl": {{ site.baseurl | jsonify }},
-        "url": {{ page.url | jsonify }},
-        "headerimage": {{ page["header-image"] | jsonify }},
-        "placename": {{ page.placename | jsonify }},
-        "summary": {{ page.summary | jsonify }},
-        "geo": {{ page.geo | jsonify }}
+        "filename": {{ img.filename | jsonify }},
+        "path": {{ img.path | jsonify }},
+        "geo": {{ img.geo | jsonify }}
       }
       {% assign first = false %}
-    {% endif %}
-  {% endfor %}
-]
+    {% endfor %}
+  ]
+}
+{% else %}
+{
+  "type": "pages",
+  "items": [
+    {% assign first = true %}
+    {% for page in site.pages %}
+      {% if page.geo %}
+        {% unless first %},{% endunless %}
+        {
+          "title": {{ page.title | jsonify }},
+          "baseurl": {{ site.baseurl | jsonify }},
+          "url": {{ page.url | jsonify }},
+          "headerimage": {{ page["header-image"] | jsonify }},
+          "placename": {{ page.placename | jsonify }},
+          "summary": {{ page.summary | jsonify }},
+          "geo": {{ page.geo | jsonify }}
+        }
+        {% assign first = false %}
+      {% endif %}
+    {% endfor %}
+  ]
+}
+{% endif %}
 </script>
 
 <!-- Initialize the map -->
@@ -154,7 +202,9 @@
       return;
     }
 
-    const pages = JSON.parse(dataElement.textContent);
+    const data = JSON.parse(dataElement.textContent);
+    const items = data.items || [];
+    const dataType = data.type || 'pages';
 
     // Initialize the map
     const mapElement = document.getElementById('{{ map_id }}');
@@ -171,36 +221,55 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Add markers for each page with geo coordinates
-    pages.forEach(p => {
-      if (!p.geo) return;
+    // Add markers based on data type
+    items.forEach(item => {
+      if (!item.geo) return;
 
-      const marker = L.marker(p.geo).addTo(map);
+      const marker = L.marker(item.geo).addTo(map);
+      let html, popupOptions;
 
-      // Build popup HTML
-      const baseUrl = p.baseurl || "";
-      const imagePath = p.headerimage ? `${baseUrl}${p.url.replace(/\/$/, "")}/${p.headerimage}` : "";
-      const imgHtml = imagePath
-        ? `<img src="${imagePath}" alt="${p.title}">`
-        : "";
-
-      const html = `
-        <div class="popup-wrapper">
-          ${imgHtml}
-          <div class="popup-text">
-            <div class="popup-title"><a href="${p.baseurl}${p.url}">${p.title}</a></div>
-            <p class="popup-placename">${p.placename || ""}</p>
-            <p class="popup-summary">${p.summary || ""}</p>
-          </div>
+      if (dataType === 'images') {
+        // Image-only popup for cat images
+        const baseUrl = data.baseurl || "";
+        const imagePath = `${baseUrl}${item.path}`;
+        
+        html = `<div class="popup-image-only">
+          <img src="${imagePath}" alt="Cat photo">
         </div>`;
 
-      const popup = L.popup({
-        maxWidth: 500,
-        maxHeight: 200,
-        autoPan: true,
-        autoPanPadding: [50, 50]
-      }).setContent(html);
-      
+        popupOptions = {
+          maxWidth: 350,
+          maxHeight: 350,
+          autoPan: true,
+          autoPanPadding: [50, 50]
+        };
+      } else {
+        // Full popup for pages
+        const baseUrl = item.baseurl || "";
+        const imagePath = item.headerimage ? `${baseUrl}${item.url.replace(/\/$/, "")}/${item.headerimage}` : "";
+        const imgHtml = imagePath
+          ? `<img src="${imagePath}" alt="${item.title}">`
+          : "";
+
+        html = `
+          <div class="popup-wrapper">
+            ${imgHtml}
+            <div class="popup-text">
+              <div class="popup-title"><a href="${item.baseurl}${item.url}">${item.title}</a></div>
+              <p class="popup-placename">${item.placename || ""}</p>
+              <p class="popup-summary">${item.summary || ""}</p>
+            </div>
+          </div>`;
+
+        popupOptions = {
+          maxWidth: 500,
+          maxHeight: 200,
+          autoPan: true,
+          autoPanPadding: [50, 50]
+        };
+      }
+
+      const popup = L.popup(popupOptions).setContent(html);
       marker.bindPopup(popup);
     });
   }
