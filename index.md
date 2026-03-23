@@ -14,7 +14,7 @@ header-title-offset: 30vh
 {% include nav/map.html
   height="650px"
   width="150%"
-  start_coords="[31.6158, -7.9891]"
+  start_coords="[31.6358, -7.9891]"
   zoom=16
   data_source="cat-images"
 %}
