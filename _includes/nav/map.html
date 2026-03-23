@@ -134,7 +134,63 @@
     max-height: 250px;
   }
 }
+
+/* Lightbox styles for full-size image viewing */
+.map-lightbox {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 10000;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+}
+
+.map-lightbox.active {
+  display: flex;
+}
+
+.map-lightbox img {
+  max-width: 95vw;
+  max-height: 95vh;
+  object-fit: contain;
+  cursor: default;
+}
+
+.map-lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: white;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10001;
+  line-height: 1;
+}
+
+.map-lightbox-close:hover {
+  color: #ccc;
+}
+
+.popup-image-only img {
+  cursor: pointer;
+}
+
+.popup-image-only img:hover {
+  opacity: 0.85;
+}
 </style>
+
+<!-- Lightbox overlay for full-size images -->
+<div id="{{ map_id }}-lightbox" class="map-lightbox">
+  <span class="map-lightbox-close">&times;</span>
+  <img src="" alt="Full size cat photo">
+</div>
 
 <!-- Map container with padding to allow popups to extend -->
 <div style="position: relative; padding: 20px; margin: -20px; height: {{ map_height }}; width: {{ map_width }}; left: 50%; transform: translateX(-50%);">
@@ -235,7 +291,7 @@
         const imagePath = `${baseUrl}${item.path}`;
         
         html = `<div class="popup-image-only">
-          <img src="${imagePath}" alt="Cat photo">
+          <img src="${imagePath}" alt="Cat photo" onclick="openMapLightbox('{{ map_id }}', '${imagePath}')" title="Click to zoom">
         </div>`;
 
         popupOptions = {
@@ -281,5 +337,40 @@
   } else {
     initMap();
   }
+})();
+
+// Lightbox functions
+function openMapLightbox(mapId, imageSrc) {
+  const lightbox = document.getElementById(mapId + '-lightbox');
+  const img = lightbox.querySelector('img');
+  img.src = imageSrc;
+  lightbox.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMapLightbox(mapId) {
+  const lightbox = document.getElementById(mapId + '-lightbox');
+  lightbox.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Set up lightbox event listeners
+(function() {
+  const lightbox = document.getElementById('{{ map_id }}-lightbox');
+  if (!lightbox) return;
+  
+  // Close on background click
+  lightbox.addEventListener('click', function(e) {
+    if (e.target === lightbox || e.target.classList.contains('map-lightbox-close')) {
+      closeMapLightbox('{{ map_id }}');
+    }
+  });
+  
+  // Close on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+      closeMapLightbox('{{ map_id }}');
+    }
+  });
 })();
 </script>
