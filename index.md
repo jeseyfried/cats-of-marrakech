@@ -20,5 +20,6 @@ I photographed these cats during my 2026 Spring Break visit to Marrakech from Sa
   data_source="cat-images"
 %}
 
-
+<br style="clear: both">
+<br style="clear: both">
 
