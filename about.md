@@ -11,7 +11,7 @@ This site also demonstrates the power of using Copilot with GitHub. I copied the
 
 ## Prompt for Copilot
 
-Here is my prompt and the summary from Copilot of its steps to create the map:
+Below I have pasted my prompt and the summary from Copilot of its steps to create the map. Please note that I had made an assumption that cards would be the best way to arrange the data. Copilot focused on what I state as the overall goal and ended up choosing to create a separate YML file in the _data folder and this was a much better way to go. So, not only did Copilot succeed in generating what I wanted on its first try, but it knew that my idea of the process was not the most efficient way. If you are interested in creating a website like this using Xanthan, I would suggest that you do NOT copy-paste this exact prompt. 
 
 *On this page, please create a card for each of the images in assets/images/marrakech-cats. The card should include geographic location extracted from the metadata of each image. Then edit map.html so that the map uses the newly created cards instead of getting geo location from YAML headers. The overall goal is to have a pin on the map for each of the photos, and when a user clicks on the pin, just the image appears.*
 
